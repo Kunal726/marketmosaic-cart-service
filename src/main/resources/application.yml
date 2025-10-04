@@ -1,0 +1,53 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+
+  # Spring Cloud ZooKeeper Configuration
+  cloud:
+    zookeeper:
+      connect-string: localhost:2181
+      config:
+        enabled: true
+        root: /config
+        default-context: application
+        profile-separator: ","
+      discovery:
+        enabled: true
+        root: /services
+
+  # ZooKeeper Configuration Paths
+  config:
+    import: optional:zookeeper:localhost:2181
+
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: local # or prod, test, etc., depending on your environment
+
+server:
+  port: 8083
+
+logging:
+  level:
+    root: INFO
+    com.projects.marketmosaic: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# Custom application properties
+app:
+  name: Cart Service
+  version: 1.0.0
