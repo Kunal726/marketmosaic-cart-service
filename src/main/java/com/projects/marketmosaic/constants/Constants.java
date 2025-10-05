@@ -7,4 +7,5 @@ import lombok.NoArgsConstructor;
 public class Constants {
     public static final Long GUEST_USER_ID = -1L;
     public static final String USER_CART_SUFFIX = "_guest_cart";
+    public static final String COOKIE_NAME = "_guest_par";
 }

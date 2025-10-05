@@ -375,6 +375,7 @@ public class CartServiceImpl implements CartService {
         cartRepository.save(cartEntity);
         if (StringUtils.isNotBlank(sessionId)) {
             redisManager.delete(sessionId + Constants.USER_CART_SUFFIX);
+            cartUtils.deleteSession(response);
         }
 
         respDTO.setCode(String.valueOf(HttpStatus.OK.value()));

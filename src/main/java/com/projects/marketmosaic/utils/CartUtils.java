@@ -1,5 +1,6 @@
 package com.projects.marketmosaic.utils;
 
+import com.projects.marketmosaic.constants.Constants;
 import com.projects.marketmosaic.dto.resp.CartDTO;
 import com.projects.marketmosaic.dto.resp.CartItemDTO;
 import com.projects.marketmosaic.entities.CartItem;
@@ -19,8 +20,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor
 @Slf4j
 public class CartUtils {
+
     public String getSession(HttpServletRequest request) {
-        final String cookieName = "_guest_par";
+        final String cookieName = Constants.COOKIE_NAME;
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if (cookie.getName().equals(cookieName)) {
@@ -32,7 +34,7 @@ public class CartUtils {
     }
 
     public void setSession(HttpServletResponse response, String sessionId) {
-        Cookie sessionCookie = new Cookie("_guest_par", AESUtil.encrypt(sessionId));
+        Cookie sessionCookie = new Cookie(Constants.COOKIE_NAME, AESUtil.encrypt(sessionId));
         sessionCookie.setPath("/");
         sessionCookie.setHttpOnly(true);
         sessionCookie.setMaxAge(60 * 60 * 24); // 1 day
@@ -76,5 +78,13 @@ public class CartUtils {
         cartDTO.setTotalAmount(totalPrice.get());
         cartDTO.setItems(cartItemDTOList);
         return cartDTO;
+    }
+
+    public void deleteSession(HttpServletResponse response) {
+        Cookie sessionCookie = new Cookie(Constants.COOKIE_NAME, "");
+        sessionCookie.setPath("/");
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setMaxAge(0);
+        response.addCookie(sessionCookie);
     }
 }
