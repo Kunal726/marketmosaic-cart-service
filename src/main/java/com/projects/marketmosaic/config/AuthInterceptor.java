@@ -45,11 +45,8 @@ public class AuthInterceptor implements HandlerInterceptor {
 			}
 		}
 
-		if (jwtToken == null && path.equals("/user/cart")) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.getWriter().write("Missing JWT_SESSION cookie");
-		return false;
-		} else if (jwtToken == null) {
+
+		if (jwtToken == null) {
 			request.setAttribute("userId", Constants.GUEST_USER_ID);
 			return true;
 		}

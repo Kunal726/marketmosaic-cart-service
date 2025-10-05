@@ -8,7 +8,7 @@ spring:
   # Spring Cloud ZooKeeper Configuration
   cloud:
     zookeeper:
-      connect-string: localhost:2181
+      connect-string: zookeeper:2181
       config:
         enabled: true
         root: /config
@@ -20,7 +20,7 @@ spring:
 
   # ZooKeeper Configuration Paths
   config:
-    import: optional:zookeeper:localhost:2181
+    import: optional:zookeeper:zookeeper:2181
 
   jackson:
     serialization:

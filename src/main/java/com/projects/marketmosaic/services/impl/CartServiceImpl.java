@@ -304,25 +304,22 @@ public class CartServiceImpl implements CartService {
         Map<Long, CartItem> dbCartMap = dbCartItems.stream()
                 .collect(Collectors.toMap(CartItem::getProductId, item -> item));
 
-        guestCartItems.forEach(guestItem ->
-                dbCartMap.compute(guestItem.getProductId(), (key, existing) -> {
-                    if (existing != null) {
-                        existing.setQuantity(existing.getQuantity() + guestItem.getQuantity());
-                        return existing;
-                    } else {
-                        guestItem.setCart(cartEntity);
-                        return guestItem;
-                    }
-                })
-        );
-
-        dbCartItems = new ArrayList<>(dbCartMap.values());
+        guestCartItems.forEach(guestItem -> {
+            CartItem existing = dbCartMap.get(guestItem.getProductId());
+            if (existing != null) {
+                existing.setQuantity(existing.getQuantity() + guestItem.getQuantity());
+            } else {
+                guestItem.setId(null);
+                guestItem.setCart(cartEntity);
+                dbCartItems.add(guestItem); // add directly to managed list
+            }
+        });
 
         if(dbCartItems.isEmpty()) {
             throw new MarketMosaicCommonException("Cart Empty");
         }
 
-        List<String> productIds = dbCartItems.stream()
+        List<String> productIds = dbCartMap.values().stream()
                 .map(CartItem::getProductId)
                 .map(String::valueOf)
                 .toList();
@@ -336,42 +333,33 @@ public class CartServiceImpl implements CartService {
         Map<Long, ProductDetailsDTO> productMap = productRespDTO.getProductList().stream()
                 .collect(Collectors.toMap(ProductDetailsDTO::getProductId, Function.identity()));
 
-        dbCartItems = dbCartItems.stream()
-                .peek(item -> {
-                    ProductDetailsDTO product = productMap.get(item.getProductId());
+        for (CartItem item : dbCartItems) {
+            ProductDetailsDTO product = productMap.get(item.getProductId());
+            if (product == null) {
+                item.setOutOfStock(true);
+                continue;
+            }
+            if (!item.getPriceAtTime().equals(product.getPrice())) {
+                item.setPriceAtTime(product.getPrice());
+            }
+            if (item.getQuantity() > product.getStockQuantity()) {
+                item.setQuantity(product.getStockQuantity());
+                item.setOutOfStock(product.getStockQuantity() == 0);
+            } else {
+                item.setOutOfStock(false);
+            }
+            item.setProductNameAtTime(product.getProductName());
+            if (product.getProductMedia() != null && !product.getProductMedia().isEmpty()) {
+                String url = product.getProductMedia().stream()
+                        .filter(media -> media.getType().contains("image"))
+                        .map(ProductDetailsDTO.ProductMedia::getUrl)
+                        .findFirst()
+                        .orElse("");
+                item.setImageUrlAtTime(url);
+            }
+        }
 
-                    if (product == null) {
-                        item.setOutOfStock(true);
-                        return;
-                    }
-
-                    // Update price if changed
-                    if (!item.getPriceAtTime().equals(product.getPrice())) {
-                        item.setPriceAtTime(product.getPrice());
-                    }
-
-                    // Adjust quantity based on stock
-                    if (item.getQuantity() > product.getStockQuantity()) {
-                        item.setQuantity(product.getStockQuantity());
-                        item.setOutOfStock(product.getStockQuantity() == 0);
-                    } else {
-                        item.setOutOfStock(false);
-                    }
-
-                    // Update name and image
-                    item.setProductNameAtTime(product.getProductName());
-                    if (product.getProductMedia() != null && !product.getProductMedia().isEmpty()) {
-                        String url = product.getProductMedia().stream()
-                                .filter(media -> media.getType().contains("image"))
-                                .map(ProductDetailsDTO.ProductMedia::getUrl)
-                                .findFirst()
-                                .orElse("");
-                        item.setImageUrlAtTime(url);
-                    }
-                })
-                .collect(Collectors.toList());
-
-        cartEntity.setItems(dbCartItems);
+        cartEntity.getItems().addAll(dbCartItems);
         cartRepository.save(cartEntity);
         if (StringUtils.isNotBlank(sessionId)) {
             redisManager.delete(sessionId + Constants.USER_CART_SUFFIX);
