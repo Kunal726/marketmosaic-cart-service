@@ -27,9 +27,9 @@ configurations {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
-    maven { url = uri("file:///C:/MyProjects/MarketMosaic/common-repo") }
 
 }
 
