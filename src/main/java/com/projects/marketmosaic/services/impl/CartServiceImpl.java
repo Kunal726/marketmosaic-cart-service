@@ -118,7 +118,7 @@ public class CartServiceImpl implements CartService {
             cartEntity = entity;
         }
 
-        ProductRespDTO productRespDTO = productClient.getProduct(String.valueOf(addToCartRequest.getProductId()), cartUtils.getCookie(request));
+        ProductRespDTO productRespDTO = productClient.getProduct(String.valueOf(addToCartRequest.getProductId()), userUtils.getCookie(request));
 
         if(productRespDTO == null || !productRespDTO.isStatus() || productRespDTO.getProduct() == null) {
             throw new MarketMosaicCommonException("Product Not found");
@@ -199,7 +199,7 @@ public class CartServiceImpl implements CartService {
                     .orElseThrow(() -> new MarketMosaicCommonException("Cart Item Not Found"));
         }
 
-        ProductRespDTO productRespDTO = productClient.getProduct(String.valueOf(cartItem.getProductId()), cartUtils.getCookie(request));
+        ProductRespDTO productRespDTO = productClient.getProduct(String.valueOf(cartItem.getProductId()), userUtils.getCookie(request));
 
         if(productRespDTO == null || !productRespDTO.isStatus() || productRespDTO.getProduct() == null) {
             throw new MarketMosaicCommonException("Product Not found");
@@ -324,7 +324,7 @@ public class CartServiceImpl implements CartService {
                 .map(String::valueOf)
                 .toList();
 
-        ProductRespDTO productRespDTO = productClient.getProducts(productIds, cartUtils.getCookie(request));
+        ProductRespDTO productRespDTO = productClient.getProducts(productIds, userUtils.getCookie(request));
 
         if(!productRespDTO.isStatus() || productRespDTO.getProductList() == null) {
             throw new MarketMosaicCommonException("Something went wrong");

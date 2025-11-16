@@ -41,23 +41,6 @@ public class CartUtils {
         response.addCookie(sessionCookie);
     }
 
-    public String getCookie(HttpServletRequest request) {
-        String jwtToken = null;
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("JWT_SESSION".equals(cookie.getName())) {
-                    jwtToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        if(StringUtils.isNotBlank(jwtToken)) {
-            return "JWT_SESSION=" + jwtToken;
-        }
-
-        return null;
-    }
 
     public CartDTO mapCartEntityToDTO(List<CartItem> cartItems) {
         CartDTO cartDTO = new CartDTO();
