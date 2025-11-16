@@ -1,12 +1,13 @@
 package com.projects.marketmosaic.config;
 
-import com.projects.marketmosaic.client.AuthServiceClient;
-import com.projects.marketmosaic.common.dto.resp.BaseRespDTO;
 import com.projects.marketmosaic.common.dto.resp.TokenValidationRespDTO;
+import com.projects.marketmosaic.common.exception.MarketMosaicCommonException;
+import com.projects.marketmosaic.common.utils.UserUtils;
 import com.projects.marketmosaic.constants.Constants;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -14,12 +15,13 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.util.Set;
 
 @Component
+@Slf4j
 public class AuthInterceptor implements HandlerInterceptor {
 
-	private final ObjectProvider<AuthServiceClient> authClientProvider;
+	private final ObjectProvider<UserUtils> userUtilsObjectProvider;
 
-	public AuthInterceptor(ObjectProvider<AuthServiceClient> authClientProvider) {
-		this.authClientProvider = authClientProvider;
+	public AuthInterceptor(ObjectProvider<UserUtils> userUtilsObjectProvider) {
+		this.userUtilsObjectProvider = userUtilsObjectProvider;
 	}
 
 	private static final Set<String> EXCLUDED_PATHS = Set.of("/health", "/public/info");
@@ -33,35 +35,18 @@ public class AuthInterceptor implements HandlerInterceptor {
 			return true; // Skip auth for excluded paths
 		}
 
-		AuthServiceClient authServiceClient = authClientProvider.getObject();
+		UserUtils userUtils = userUtilsObjectProvider.getObject();
 
-		String jwtToken = null;
-		if (request.getCookies() != null) {
-			for (Cookie cookie : request.getCookies()) {
-				if ("JWT_SESSION".equals(cookie.getName())) {
-					jwtToken = cookie.getValue();
-					break;
-				}
-			}
-		}
-
-
-		if (jwtToken == null) {
-			request.setAttribute("userId", Constants.GUEST_USER_ID);
+		try {
+			userUtils.validateUser(request);
 			return true;
-		}
-
-		TokenValidationRespDTO result = authServiceClient.validateUser("JWT_SESSION=" + jwtToken);
-
-
-		if (!result.isValid()) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.getWriter().write("Invalid session");
+		} catch (MarketMosaicCommonException ex) {
+			log.info("Session Not Found guest user found");
+			if(ex.getCode() == 40000) {
+				request.setAttribute("userId", Constants.GUEST_USER_ID);
+				return true;
+			}
 			return false;
 		}
-
-		request.setAttribute("userId", result.getUserId());
-		return true;
 	}
-
 }

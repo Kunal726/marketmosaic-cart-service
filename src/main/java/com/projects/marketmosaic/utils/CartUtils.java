@@ -1,8 +1,8 @@
 package com.projects.marketmosaic.utils;
 
+import com.projects.marketmosaic.common.dto.cart.CartDTO;
+import com.projects.marketmosaic.common.dto.cart.CartItemDTO;
 import com.projects.marketmosaic.constants.Constants;
-import com.projects.marketmosaic.dto.resp.CartDTO;
-import com.projects.marketmosaic.dto.resp.CartItemDTO;
 import com.projects.marketmosaic.entities.CartItem;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

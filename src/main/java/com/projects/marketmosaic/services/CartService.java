@@ -1,8 +1,8 @@
 package com.projects.marketmosaic.services;
 
+import com.projects.marketmosaic.common.dto.cart.CartDTO;
 import com.projects.marketmosaic.common.dto.resp.BaseRespDTO;
 import com.projects.marketmosaic.dto.CheckoutCartRespDto;
-import com.projects.marketmosaic.dto.resp.CartDTO;
 import com.projects.marketmosaic.dto.req.AddToCartRequest;
 import com.projects.marketmosaic.dto.req.DeleteCartItemRequest;
 import com.projects.marketmosaic.dto.req.UpdateCartItemRequest;

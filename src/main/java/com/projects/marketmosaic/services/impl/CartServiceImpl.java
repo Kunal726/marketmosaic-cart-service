@@ -2,6 +2,7 @@ package com.projects.marketmosaic.services.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.projects.marketmosaic.client.ProductClient;
+import com.projects.marketmosaic.common.dto.cart.CartDTO;
 import com.projects.marketmosaic.common.dto.product.resp.ProductDetailsDTO;
 import com.projects.marketmosaic.common.dto.product.resp.ProductRespDTO;
 import com.projects.marketmosaic.common.dto.resp.BaseRespDTO;
@@ -11,7 +12,6 @@ import com.projects.marketmosaic.common.utils.RedisManager;
 import com.projects.marketmosaic.common.utils.UserUtils;
 import com.projects.marketmosaic.constants.Constants;
 import com.projects.marketmosaic.dto.CheckoutCartRespDto;
-import com.projects.marketmosaic.dto.resp.CartDTO;
 import com.projects.marketmosaic.dto.req.AddToCartRequest;
 import com.projects.marketmosaic.dto.req.DeleteCartItemRequest;
 import com.projects.marketmosaic.dto.req.UpdateCartItemRequest;
